@@ -1,0 +1,49 @@
+# ---
+# Keycloak Playground
+# ===
+# En este archivo se detalla la arquitectura del proyecto.
+# Esta conformado por dos servicios:
+#   1. `Keycloak`: El servicio de `keycloak` funcionando sobre `jboss`.
+#   2. `Postgres`: La base de datos donde se guarda la información de `Postgres`.
+# ---
+version: '3.7'
+# --- SERVICES --- #
+services:
+  # --- Keycloak
+  keycloak:
+    image: jboss/keycloak
+    container_name: keycloak
+    restart: always
+    depends_on:
+      - postgres
+    env_file: .env
+    ports:
+      - '8080:8080'
+      - '8443:8443'
+    networks:
+      - backend
+  # --- Database
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    env_file: .env
+    ports:
+      - '3306:3306'
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+    networks:
+      - backend
+# --- VOLUMES --- #
+volumes:
+  postgres_volume:
+# --- NETWORKS --- #
+networks:
+  backend:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: 'false'
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.254.0/24
