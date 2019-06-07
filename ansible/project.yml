@@ -1,0 +1,22 @@
+---
+- hosts: local
+  connection: local
+  gather_facts: no
+  vars_files:
+    - ./secret.yml
+  tasks:
+    - name: Create the .env file
+      template:
+        src: './templates/docker-compose.yml'
+        dest: '../docker-compose.yml'
+      tags:
+        - template
+    
+    - name: 'Run docker-compose'
+      docker_compose:
+        build: '{{docker_compose_build}}'
+        project_src: '{{docker_compose_project_src}}'
+        state: '{{docker_compose_state}}'
+        remove_volumes: '{{docker_compose_remove_volumes}}'
+      tags:
+        - docker

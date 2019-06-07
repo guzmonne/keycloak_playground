@@ -1,0 +1,72 @@
+---
+- hosts: local
+  connection: local
+  gather_facts: no
+  vars_files:
+    - ./secret.yml
+  tasks:
+    - name: Genera un llave privada para utilizar con Let's Encrypt
+      openssl_privatekey:
+        path: '{{ openssl_privatekey_path }}'
+
+    - name: Genera un llave privada para firmar certificados a utilizar con Let's Encrypt
+      openssl_privatekey:
+        path: '{{ openssl_csr_privatekey_path }}'
+
+    - name: Generación de un nuevo CSR
+      openssl_csr:
+        path: '{{ openssl_csr_path }}'
+        privatekey_path: '{{ openssl_csr_privatekey_path }}'
+        country_name: '{{ openssl_csr_country_name }}'
+        organization_name: '{{openssl_csr_organization_name}}'
+        email_address: '{{ openssl_csr_email_address }}'
+        common_name: '{{ openssl_csr_common_name }}'
+        subject_alt_name: "{{ item.value | map('regex_replace', '^', 'DNS:') | list }}"
+      with_dict:
+        dns_server:
+          - '{{ domain }}'
+          - '*.{{ domain }}'
+
+    - name: Crear el challenge para el dominio
+      acme_certificate:
+        account_key_src: '{{ acme_certificate_account_key_src }}'
+        account_email: '{{ acme_certificate_account_email }}'
+        acme_directory: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+        acme_version: '2'
+        challenge: dns-01
+        csr: '{{ acme_certificate_csr }}'
+        dest: '{{ acme_certificate_dest }}'
+        fullchain_dest: '{{ acme_certificate_fullchain_dest }}'
+        terms_agreed: yes
+        remaining_days: '{{ acme_certificate_remaining_days }}'
+      register: acme_certificate_challenge
+
+    - name: Creación del registro para validar el challenge en Route 53
+      route53:
+        aws_access_key: '{{ aws_access_key }}'
+        aws_secret_key: '{{ aws_secret_key }}'
+        zone: '{{ route53_zone }}'
+        record: '{{ item[0] }}'
+        type: TXT
+        ttl: 60
+        state: present
+        wait: yes
+        overwrite: yes
+        value: "{{ item[1] | map('regex_replace', '^(.*)$', '\"\\1\"' ) | list }}"
+      loop: "{{ acme_certificate_challenge.challenge_data_dns | dictsort }}"
+      when: acme_certificate_challenge is changed
+
+    - name: Indicar al CA que el challenge puede ser validado
+      acme_certificate:
+        account_key_src: '{{ acme_certificate_account_key_src }}'
+        account_email: '{{ acme_certificate_account_email }}'
+        acme_version: '2'
+        acme_directory: '{{ acme_certificate_directory }}'
+        chain_dest: '{{ acme_certificate_chain_dest }}'
+        challenge: dns-01
+        csr: '{{ acme_certificate_csr }}'
+        data: '{{ acme_certificate_challenge }}'
+        dest: '{{ acme_certificate_dest }}'
+        fullchain_dest: '{{ acme_certificate_fullchain_dest }}'
+        remaining_days: '{{ acme_certificate_remaining_days }}'
+        terms_agreed: yes

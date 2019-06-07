@@ -24,14 +24,14 @@ services:
     restart: always
     container_name: keycloak
     environment:
-      - KEYCLOAK_USER=admin
-      - KEYCLOAK_PASSWORD=password
-      - DB_ADDR=postgres
-      - DB_PORT=5432
-      - DB_DATABASE=keycloak
-      - DB_SCHEMA=public
-      - DB_USER=admin
-      - DB_PASSWORD=password
+      - KEYCLOAK_USER={{keycloak_username}}
+      - KEYCLOAK_PASSWORD={{keycloak_password}}
+      - DB_ADDR={{db_addr}}
+      - DB_PORT={{db_port}}
+      - DB_DATABASE={{keycloak_db_name}}
+      - DB_SCHEMA={{keycloak_db_schema}}
+      - DB_USER={{db_user}}
+      - DB_PASSWORD={{db_password}}
       - DB_VENDOR=postgres
     depends_on:
       - postgres
@@ -45,9 +45,9 @@ services:
     image: postgres
     container_name: postgres
     environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_USER=admin
-      - POSTGRES_DB=keycloak 
+      - POSTGRES_PASSWORD={{db_password}}
+      - POSTGRES_USER={{db_user}}
+      - POSTGRES_DB={{keycloak_db_name}} 
     restart: always
     ports:
       - '5432:5432'

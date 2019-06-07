@@ -1,7 +1,0 @@
----
-- hosts: local
-  connection: local
-  gather_facts: no
-  tasks:
-    - name: Create the .env file
-        
