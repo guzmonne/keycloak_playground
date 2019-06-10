@@ -383,3 +383,56 @@ http {
   }
 }
 ```
+
+## Configurar Keycloak para trabajar bajo un reverse proxy
+
+Algunas funcionalidades de Keycloak requieren conocer la IP del cliente. Esto puede ser problematico cuando Keycloak trabaja bajo un reverse proxy.
+
+Para remediar esto es necesario seguir las siguientes acciones:
+
+- Configurar el reverse proxy para que configure los encabezados `X-Forwarded-For` y `X-Forwarded-Proto`.
+- Configurar el reverse proxy para que conserve el encabezado de `Host` del request original.
+- Configurar el servidor de autenticación para leer la IP del encabezado `X-Forwarded-For` en vez del paquete capa 3.
+
+Muchas de estas configuraciones se deben realizar directamente en el proxy. Sin embargo, hay ciertas tareas que deben ser realizadas sobre el servidor Keycloak.
+
+Primero, debemos indicarle a Keycloak que debe obtener la IP de los clientes desde el encabezado `X-Forwarded-For`. Para hacer esto debemos modificar el archivo `standalone.xml`, buscando por el bloque XML `urn:jboss:domain:undertow:3.0`.
+
+```xml
+<subsystem xmlns="urn:jboss:domain:undertow:3.0">
+   <buffer-cache name="default"/>
+   <server name="default-server">
+      <ajp-listener name="ajp" socket-binding="ajp"/>
+      <http-listener name="default" socket-binding="http" redirect-socket="https"
+          proxy-address-forwarding="true"/>
+      ...
+   </server>
+   ...
+</subsystem>
+```
+
+Es necesario agregar el atributo `proxy-address-forwarding` al elemento `http-listener` con el valor `true`.
+
+Por defecto, Keycloak escucha conexiones SSL en el puerto `8443`. Debemos modificar la configuración si queremos que lo haga en el puerto `443`.
+
+```xml
+<subsystem xmlns="urn:jboss:domain:undertow:3.0">
+    ...
+    <http-listener name="default" socket-binding="http"
+        proxy-address-forwarding="true" redirect-socket="proxy-https"/>
+    ...
+</subsystem>
+```
+
+Primero debemos agregar el atributo `redirect-socket` al elemento `http-listener`. El valor debe ser `proxy-https`. Luego, tendremos que crear un nuevo elemento `socket-binding` dentro del elemento `socket-binding-group``
+
+```xml
+<socket-binding-group name="standard-sockets" default-interface="public"
+    port-offset="${jboss.socket.binding.port-offset:0}">
+    ...
+    <socket-binding name="proxy-https" port="443"/>
+    ...
+</socket-binding-group>
+```
+
+Para veríficar que todo este funcionando correctamente podemos dirigirnos a la URL `/auth/realms/master/.well-known/openid-configuration`. El resultado debería ser un documento `json`. Todas las URL deberían contener la dirección del reverse proxy.

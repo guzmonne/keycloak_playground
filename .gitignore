@@ -1,3 +1,5 @@
 /.env
-/password
+password
 /docker-compose.yml
+certificates
+/nginx/nginx.conf

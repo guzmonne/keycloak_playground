@@ -15,12 +15,19 @@ services:
     container_name: nginx
     restart: always
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certificates/{{ domain }}.fullchain.crt:/etc/nginx/{{ domain }}.crt
+      - ./certificates/{{ domain }}.key:/etc/nginx/{{ domain }}.key
     ports:
       - '80:80'
+      - '443:443'
+    depends_on:
+      - keycloak
+    networks:
+      - backend
   # --- Keycloak
   keycloak:
-    build: .
+    build: ./keycloak
     restart: always
     container_name: keycloak
     environment:
@@ -33,6 +40,8 @@ services:
       - DB_USER={{db_user}}
       - DB_PASSWORD={{db_password}}
       - DB_VENDOR=postgres
+      - PROXY_ADDRESS_FORWARDING=true 
+#      - PROXY_ADDRESS_REDIRECT_SOCKET=proxy-https 
     depends_on:
       - postgres
     ports:
@@ -58,6 +67,7 @@ services:
   # --- Adminer
   adminer:
     image: adminer
+    container_name: adminer
     restart: always
     ports:
       - 8000:8080

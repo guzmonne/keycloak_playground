@@ -5,10 +5,17 @@
   vars_files:
     - ./secret.yml
   tasks:
-    - name: Create the .env file
+    - name: Create the docker-compose.yml file
       template:
         src: './templates/docker-compose.yml'
         dest: '../docker-compose.yml'
+      tags:
+        - template
+
+    - name: Create the nginx.conf file
+      template:
+        src: './templates/nginx.conf'
+        dest: './nginx/nginx.conf'
       tags:
         - template
     
