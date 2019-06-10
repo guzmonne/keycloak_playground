@@ -21,27 +21,30 @@ services:
     ports:
       - '80:80'
       - '443:443'
+    command: [nginx-debug, '-g', 'daemon off;']
     depends_on:
       - keycloak
     networks:
       - backend
   # --- Keycloak
   keycloak:
-    build: ./keycloak
+    image: jboss/keycloak:6.0.1
     restart: always
     container_name: keycloak
+    volumes:
+      - ./keycloak/standalone.xml:{{ jboss_home }}/standalone/configuration/standalone.xml
     environment:
-      - KEYCLOAK_USER={{keycloak_username}}
-      - KEYCLOAK_PASSWORD={{keycloak_password}}
-      - DB_ADDR={{db_addr}}
-      - DB_PORT={{db_port}}
-      - DB_DATABASE={{keycloak_db_name}}
-      - DB_SCHEMA={{keycloak_db_schema}}
-      - DB_USER={{db_user}}
-      - DB_PASSWORD={{db_password}}
+      - KEYCLOAK_USER={{ keycloak_username }}
+      - KEYCLOAK_PASSWORD={{ keycloak_password }}
+      - DB_ADDR={{ db_addr }}
+      - DB_PORT={{ db_port }}
+      - DB_DATABASE={{ keycloak_db_name }}
+      - DB_SCHEMA={{ keycloak_db_schema }}
+      - DB_USER={{ db_user }}
+      - DB_PASSWORD={{ db_password }}
       - DB_VENDOR=postgres
-      - PROXY_ADDRESS_FORWARDING=true 
-#      - PROXY_ADDRESS_REDIRECT_SOCKET=proxy-https 
+      - PROXY_ADDRESS_FORWARDING=true
+      - JBOSS_HOME={{ jboss_home }}
     depends_on:
       - postgres
     ports:

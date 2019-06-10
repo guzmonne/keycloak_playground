@@ -12,10 +12,17 @@
       tags:
         - template
 
-    - name: Create the nginx.conf file
+    - name: Create the nginx/nginx.conf file
       template:
         src: './templates/nginx.conf'
-        dest: './nginx/nginx.conf'
+        dest: '../nginx/nginx.conf'
+      tags:
+        - template
+
+    - name: Create the keycloak/standalone.xml file
+      template:
+        src: './templates/standalone.xml'
+        dest: '../keycloak/standalone.xml'
       tags:
         - template
     

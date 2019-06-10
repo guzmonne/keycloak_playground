@@ -1,5 +1,5 @@
 /.env
 password
 /docker-compose.yml
-certificates
+certificates/*
 /nginx/nginx.conf

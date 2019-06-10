@@ -31,7 +31,7 @@
       acme_certificate:
         account_key_src: '{{ acme_certificate_account_key_src }}'
         account_email: '{{ acme_certificate_account_email }}'
-        acme_directory: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+        acme_directory: '{{ acme_certificate_directory }}'
         acme_version: '2'
         challenge: dns-01
         csr: '{{ acme_certificate_csr }}'

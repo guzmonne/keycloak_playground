@@ -15,18 +15,24 @@ services:
     container_name: nginx
     restart: always
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certificates/keycloak.demo.conatest.click.fullchain.crt:/etc/nginx/keycloak.demo.conatest.click.crt
+      - ./certificates/keycloak.demo.conatest.click.key:/etc/nginx/keycloak.demo.conatest.click.key
     ports:
       - '80:80'
+      - '443:443'
+    command: [nginx-debug, '-g', 'daemon off;']
     depends_on:
       - keycloak
     networks:
       - backend
   # --- Keycloak
   keycloak:
-    build: ./keycloak
+    image: jboss/keycloak:6.0.1
     restart: always
     container_name: keycloak
+    volumes:
+      - ./keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=password
@@ -37,8 +43,8 @@ services:
       - DB_USER=admin
       - DB_PASSWORD=password
       - DB_VENDOR=postgres
-      - PROXY_ADDRESS_FORWARDING=true 
-#      - PROXY_ADDRESS_REDIRECT_SOCKET=proxy-https 
+      - PROXY_ADDRESS_FORWARDING=true
+      - JBOSS_HOME=/opt/jboss/keycloak
     depends_on:
       - postgres
     ports:
