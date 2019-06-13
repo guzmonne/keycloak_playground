@@ -1,0 +1,8 @@
+{
+  "realm": "{{ keycloak_realm }}",
+  "auth-server-url": "https://{{ domain }}/auth",
+  "ssl-required": "external",
+  "resource": "{{ keycloak_realm_client_resource }}",
+  "public-client": true,
+  "confidential-port": 0
+}

@@ -18,6 +18,9 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certificates/{{ domain }}.fullchain.crt:/etc/nginx/{{ domain }}.crt
       - ./certificates/{{ domain }}.key:/etc/nginx/{{ domain }}.key
+      - ./portal/keycloak.json:/usr/share/nginx/html/keycloak.json
+      - ./portal/index.html:/usr/share/nginx/html/portal/index.html
+      - ./nginx/favicon.ico:/usr/share/nginx/html/favicon.ico
     ports:
       - '443:443'
     command: [nginx-debug, '-g', 'daemon off;']
@@ -25,7 +28,6 @@ services:
       - keycloak
       - ldap-server
       - ldap-admin
-      - portal
     networks:
       - backend
   # --- LDAP
@@ -91,20 +93,6 @@ services:
       - '5432:5432'
     volumes:
       - postgres_volume:/var/lib/postgresql/data
-    networks:
-      - backend
-  # --- Portal
-  portal:
-    image: node:8.16.0-alpine
-    container_name: portal
-    working_dir: doc/home/node/app
-    environment:
-      - NODE_ENV=production
-    volumes:
-      - ./portal:/home/node/app
-    expose:
-      - '5000'
-    command: 'npm start'
     networks:
       - backend
   # --- Adminer

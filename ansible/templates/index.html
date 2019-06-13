@@ -18,9 +18,9 @@
 
   <!-- Add your site or application content here -->
   <pre id="keycloak">Sin Autenticar</pre>
-  <script src="https://keycloak.demo.conatest.click/auth/js/keycloak.js" crossorigin="anonymous"></script>
+  <script src="{{url}}/auth/js/keycloak.js" crossorigin="anonymous"></script>
   <script>
-    var keycloak = Keycloak('https://keycloak.demo.conatest.click/keycloak.json');
+    var keycloak = Keycloak('{{url}}/keycloak.json');
 
     keycloak.init({
       onLoad: 'login-required'

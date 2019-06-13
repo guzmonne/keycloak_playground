@@ -5,3 +5,4 @@ certificates/*
 /nginx/nginx.conf
 ldap/*
 portal/keycloak.json
+keycloak/realm-export.json
