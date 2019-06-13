@@ -90,7 +90,7 @@ Una vez levantada se puede operar con los servicios de la misma utilizando `dock
 
 Para dar de baja la aplicación solamente hay que correr la tarea `make down`.
 
-## Otras taread de interes
+## Otras tareas de interes
 
 ### `make template`
 
@@ -101,6 +101,10 @@ Despues los podemos aplicar utilizando `docker-compose` de la siguiente manera:
 ```
 docker-compose up -d --no-deps --force-recreate --build <nombre_del_servicio>
 ```
+
+### `make nginx`
+
+Una tarea que simplifica los comandos para reiniciar le servicio de `nginx`.
 
 ## Notas
 
