@@ -18,9 +18,13 @@
 
   <!-- Add your site or application content here -->
   <pre id="keycloak">Sin Autenticar</pre>
-  <script src="{{url}}/auth/js/keycloak.js" crossorigin="anonymous"></script>
+  <script src="{{ url }}/auth/js/keycloak.js" crossorigin="anonymous"></script>
   <script>
-    var keycloak = Keycloak('{{url}}/keycloak.json');
+    var keycloak = new Keycloak({ 
+      url: '{{ url }}/auth',
+      realm: '{{ keycloak_realm }}',
+      clientId: '{{ keycloak_realm_client_resource }}' 
+    });
 
     keycloak.init({
       onLoad: 'login-required'

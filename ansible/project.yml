@@ -26,13 +26,6 @@
       tags:
         - template
 
-    - name: Create the portal/keycloak.json file
-      template:
-        src: './templates/keycloak.json'
-        dest: '../portal/keycloak.json'
-      tags:
-        - template
-
     - name: Create the keycloak/realm-export.json file
       template:
         src: './templates/realm-export.json'
@@ -44,6 +37,13 @@
       template:
         src: './templates/index.html'
         dest: '../portal/index.html'
+      tags:
+        - template
+
+    - name: Create the ldap/export.ldif file
+      template:
+        src: './templates/export.ldif'
+        dest: '../ldap/export.ldif'
       tags:
         - template
     

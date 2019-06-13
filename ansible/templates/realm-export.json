@@ -1295,7 +1295,7 @@
               "subComponents": {},
               "config": {
                 "ldap.attribute": [
-                  "cn"
+                  "uid"
                 ],
                 "is.mandatory.in.ldap": [
                   "true"
@@ -1417,7 +1417,7 @@
             "true"
           ],
           "usernameLDAPAttribute": [
-            "cn"
+            "uid"
           ],
           "bindCredential": [
             "{{ password }}"
@@ -1465,7 +1465,7 @@
             "inetOrgPerson, organizationalPerson"
           ],
           "rdnLDAPAttribute": [
-            "cn"
+            "uid"
           ],
           "editMode": [
             "READ_ONLY"
