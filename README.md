@@ -77,6 +77,10 @@ python_interpreter: # Interprete de Python a utilizar. [OPCIONAL]
 
 ## Levantar la aplicación
 
+Antes de correr la aplicación por primera vez, es necesario crear los certificados que se van a utilizar para servir la aplicación por `HTTPS`. Esto se hace ejecutando la tarea `make certificates`. Los archivos generados se podrán encontrar en la carpeta `certificates`. Esta tarea deberá ser ejecutada al menos una vez cada 60 días para refrescar los certificados, los cuales solo son valídos por 90 días.
+
+_Puede ser necesario que deban crear las carpetas `ldap`, `portal`, y `keycloak` antes de correr la aplicación por primera vez, si no existen las mismas._
+
 Utilizando la tarea `make up` desde la raiz del proyecto se puede levantar la aplicación. Se ejecutará un `playbook` que se encargara de:
 
 - Crear el archivo `docker-compose.yml` a partir de un template y las variables configuradas.
@@ -85,6 +89,23 @@ Utilizando la tarea `make up` desde la raiz del proyecto se puede levantar la ap
 Como muchos de estos archivos de configuración contienen datos sensibles, los mismos no son almacenados en el repositorio, ni son traqueados por `git`. Es recomendable que esto permanezca así.
 
 Una vez levantada se puede operar con los servicios de la misma utilizando `docker-compose`, u otra de las tareas definidas dentro del proyecto.
+
+Por defecto, el proyecto esta configurado para levantar un servidor `ldap` de prueba. El mismo no cuenta con ningun dato. Sin embargo, se deja disponible un archivo en `./ldap/export.ldif` que puede importarse al servidor para inicializar la base con tres usuarios. Un administrados, y dos usuarios normales. Para importar este archivo, o realizar cualquier modificación sobre el servicio `ldap` se debe acceder a la web de gestión en la url `https://127.0.0.1:6443`. Las credenciales de acceso se configurarón en las variables de Ansible. Por ejemplo:
+
+```
+Usuario: cn=admin,dc=example,dc=com
+Password: passwordsupersecreto!
+```
+
+_También se puede acceder al dashboard de Keycloak._
+
+```
+Url: https://{{ domain }}/auth
+User: {{ user }}
+Pass: {{ password }}
+```
+
+Sin embargo, no debería ser necesario realizar ninguna modificación sobre el mismo para que la aplicación funcione.
 
 ## Bajar la aplicación
 
@@ -106,13 +127,19 @@ docker-compose up -d --no-deps --force-recreate --build <nombre_del_servicio>
 
 Una tarea que simplifica los comandos para reiniciar le servicio de `nginx`.
 
+### `make certificates`
+
+Corre un `playbook` que obtiene certificados validos de `letsencrypt` y los almacena en la carpeta `certificates` desde donde los levanta `nginx`.
+
+Es necesario aplicar una tarea programada para actualizar los certificados al menos cada 60 días. Dicha tarea, debería también reiniciar el servicio de `nginx` una vez actualizado los certificados.
+
 ## Notas
 
 En el archivo `NOTES.md` se encuentra un resumen de información, que explica como se realizarón los `playbooks`; como se configura `nginx`; y una breve descripciónd de que es `ldap`. Es recomendable leerlo para entender porque se configurarón estos servicios de esta manera.
 
 ## Funcionamiento
 
-La solución esta diseñada para que el encargado de autenticar a los usuarios sea Keycloak. Para esto se crea:
+La solución esta diseñada para que el encargado de autenticar a los usuarios sea Keycloak. Para esto se configura en el mismo:
 
 1. Un nuevo realm.
 2. Una nueva lista de usuarios federados a través de `ldap`.

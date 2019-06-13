@@ -11,3 +11,6 @@ up:
 
 down:
 	cd ansible && make down && cd ..
+
+certificates:
+	cd ansible && make letsencrypt && cd ..
