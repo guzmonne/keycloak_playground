@@ -2,6 +2,9 @@
 password
 /docker-compose.yml
 certificates/*
-/nginx/nginx.conf
+nginx/nginx.conf
 portal/keycloak.json
 keycloak/realm-export.json
+keycloak/standalone.xml
+ldap/export.ldif
+portal/index.html
