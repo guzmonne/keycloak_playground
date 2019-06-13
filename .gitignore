@@ -3,3 +3,5 @@ password
 /docker-compose.yml
 certificates/*
 /nginx/nginx.conf
+ldap/*
+portal/keycloak.json

@@ -436,3 +436,48 @@ Primero debemos agregar el atributo `redirect-socket` al elemento `http-listener
 ```
 
 Para veríficar que todo este funcionando correctamente podemos dirigirnos a la URL `/auth/realms/master/.well-known/openid-configuration`. El resultado debería ser un documento `json`. Todas las URL deberían contener la dirección del reverse proxy.
+
+## LDAP
+
+LDAP significa Lightweight Directory Access Protocol (Protocolo Ligero de Acceso a Directorio).
+
+Un directorio es una base de datos especializada diseñada para consultas frecuentes y actualizaciones no tan frecuentes. Al contrario que las bases de datos generalistas, no ofrecen soporte para transacciones o funcionalidad de vuelta atrás (roll-back). Los directorios se replican fácilmente para incrementar disponibilidad y fiabilidad. Cuando se replican los directorios, se permiten inconsistencias temporales siempre que acaben sincronizándose
+
+Ejemplo de árbol:
+
+```
+dc:           org
+              |
+dc:          genfic           ## (Organización)
+            /      \
+ou:    Personas  Servidores   ## (Unidades organizativas)
+       /      \     ..
+uid:  ..     John             ## (Datos específicos de las UO)
+```
+
+### Directory Servers
+
+Un Directory Server o DSA, es un tipo de base de datos que almacena recursos en formato de árbol. Algunos de los más conocidos son: Microsoft Active Directory, OpenLDAP, ApacheDS, etc. 
+
+### Entries
+
+Una `entry` es una colección de información relacionada a una entidad. Cada `entry` esta compuesta por:
+
+1. un nombre (`distinguished name`),
+2. una colección de atributos,
+3. y una colección de clases de objetos.
+
+### DNs y RDNs
+
+Un `distinguished name` o `DN` identifica una `entry` y la posiciona dentro del directorio. Se puede ver como el `path` de la `entry`.
+
+Esta compuesto por cero o más `relative distinguished names` o `RDNs`. Cada `RDN` esta compuesto por un par de llave/valor. For ejemplo `uid=john.doe`.
+
+Existe un `DN` compuesto por cero `RDNs` que se considera la raiz del árbol.
+
+Múltiples `RDNs` son concatenados en forma descendiente por comas para construir la dirección de la `entry`. Por ejemplo: `uid=john.doe,ou=People,dc=example,dc=com` tiene cuatro `RDNs`, cuyo padre es `ou=People,dc=example,dc=com`.
+
+### Attributes
+
+Los `attributes` concentran la información de una `entry`. Cada uno tiene un tipo, cero o más opciones, y un set de valores que representan la información de la `entry`.
+

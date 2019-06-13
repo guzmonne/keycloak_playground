@@ -1,0 +1,39 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Place favicon.ico in the root directory -->
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+  <!--[if IE]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+  <!-- Add your site or application content here -->
+  <pre id="keycloak">Sin Autenticar</pre>
+  <script src="https://keycloak.demo.conatest.click/auth/js/keycloak.js" crossorigin="anonymous"></script>
+  <script>
+    var keycloak = Keycloak('https://keycloak.demo.conatest.click/portal/keycloak.json');
+
+    keycloak.init({
+      onLoad: 'login-required'
+    })
+      .success(function(authenticated) {
+        console.log(authenticated);
+        document.getElementById('keycloak').textContent = JSON.stringify(keycloak, null, 2);
+      })
+      .error(function(err) {
+        console.error(err);
+        alert('Failed to initialize');
+      })
+  </script>
+</body>
+
+</html>

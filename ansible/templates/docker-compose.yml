@@ -19,18 +19,47 @@ services:
       - ./certificates/{{ domain }}.fullchain.crt:/etc/nginx/{{ domain }}.crt
       - ./certificates/{{ domain }}.key:/etc/nginx/{{ domain }}.key
     ports:
-      - '80:80'
       - '443:443'
     command: [nginx-debug, '-g', 'daemon off;']
     depends_on:
       - keycloak
+      - ldap-server
+      - ldap-admin
+      - portal
+    networks:
+      - backend
+  # --- LDAP
+  ldap-server:
+    image: nickstenning/slapd
+    container_name: ldap-server
+    restart: always
+    ports:
+      - '389:389'
+    environment:
+      - LDAP_DOMAIN={{ domain }}
+      - LDAP_ORGANISATION="Keycloak Playground"
+      - LDAP_ROOTPASS={{ password }}
+    volumes:
+      - ./ldap:/var/lib/ldap
+      - ./ldap/ldapconfig:/etc/ldap/slapd.d
+    networks:
+      - backend
+  # --- LDAP Web
+  ldap-admin:
+    image: osixia/phpldapadmin:0.8.0
+    container_name: ldap-admin
+    restart: always
+    ports:
+      - '6443:443'
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=ldap-server
     networks:
       - backend
   # --- Keycloak
   keycloak:
     image: jboss/keycloak:6.0.1
-    restart: always
     container_name: keycloak
+    restart: always
     volumes:
       - ./keycloak/standalone.xml:{{ jboss_home }}/standalone/configuration/standalone.xml
     environment:
@@ -47,9 +76,6 @@ services:
       - JBOSS_HOME={{ jboss_home }}
     depends_on:
       - postgres
-    ports:
-      - '8080:8080'
-      - '8443:8443'
     networks:
       - backend
   # --- Database
@@ -67,13 +93,27 @@ services:
       - postgres_volume:/var/lib/postgresql/data
     networks:
       - backend
+  # --- Portal
+  portal:
+    image: node:8.16.0-alpine
+    container_name: portal
+    working_dir: doc/home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./portal:/home/node/app
+    expose:
+      - '5000'
+    command: 'npm start'
+    networks:
+      - backend
   # --- Adminer
   adminer:
     image: adminer
     container_name: adminer
     restart: always
     ports:
-      - 8000:8080
+      - '8080:8080'
     networks:
       - backend
 # --- VOLUMES --- #
